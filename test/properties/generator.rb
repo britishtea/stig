@@ -1,16 +1,25 @@
 require_relative "../test_helper"
 require "properties"
 
-setup do
-  Properties::Generator.new do
-    1
-  end
+setup { Properties }
+
+prepare { $test = nil }
+
+test "without a block" do |namespace|
+  assert_raise(ArgumentError) { namespace.generator }
 end
 
-test "#to_gen" do |generator|
-  assert generator.is_a?(Properties::Generable)
+test "with a block" do |namespace|
+  generator = namespace.generator { 1 }
+
+  assert_equal generator.class, Enumerator
+  assert_equal generator.size, Float::INFINITY
+  assert_equal generator.take(100).uniq, [1]
 end
 
-test "#random" do |generator|
-  assert_equal generator.random, 1
+test "taking arguments" do |namespace|
+  arguments = [:a, :b, :c]
+  generator = namespace.generator(*arguments) { |*args| args }
+
+  assert_equal generator.take(100).uniq, [arguments]
 end

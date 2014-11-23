@@ -1,7 +1,7 @@
 require_relative "../test_helper"
 require "properties"
 
-TEST_GENERATOR = Properties::Generator.new { 1 }
+TEST_GENERATOR = [1].cycle
 
 setup { Properties }
 
@@ -16,6 +16,10 @@ end
 test "invalid generators" do |namespace|
   assert_raise(ArgumentError) do
     namespace.property("invalid", TEST_GENERATOR) { true }
+  end
+
+  assert_raise(ArgumentError) do
+    namespace.property([].each) { true }
   end
 end
 
