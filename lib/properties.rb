@@ -1,71 +1,6 @@
 module Properties
-  # Public: Provides a way to turn an object's #random into a generator. Note 
-  # that the object should have a #random defined.
-  #
-  # Examples
-  #
-  #   class Integer
-  #     extend Properties::Generable
-  #     
-  #     def self.random(min, max)
-  #       rand(min..max)
-  #     end
-  #   end
-  module Generable
-    # Public: Turns an object into an Enumerator suitable for consumption by
-    # Properties#property. Note that the Enumerator is cached in the instance 
-    # variable `@__GENERATOR__`.
-    #
-    # args  - Any arguments that should be passed to #random.
-    # block - A block that should be passed to #random.
-    #
-    # Returns an Enumerator.
-    def to_gen(*args, &block)
-      @__GENERATOR__ ||= begin
-        unless self.respond_to?(:random)
-          raise ArgumentError, "#{self}.random is not implemented"
-        end
-
-        Enumerator.new(Float::INFINITY) do |yielder|
-          loop { yielder << self.random(*args, &block) }
-        end
-      end
-    end
-  end
-
-  class Generator
-    include Generable
-
-    # Public: ...
-    #
-    # block - A block that returns a random value.
-    #
-    # Examples
-    #
-    #   Character = Properties::Generator.new do |*set|
-    #     set.sample
-    #   end
-    #
-    #   generator = Character.random("a".."z")
-    #   # => "e"
-    def initialize(&block)
-      @block = block
-    end
-
-    # Public: Calls the generator block (the block passed to initialize) with 
-    # *args and &block.
-    #
-    # args  - Any arguments that should be passed to the block.
-    # block - A block that should be passed to the generator block.
-    #
-    # Returns the result of the block.
-    def random(*args, &block)
-      @block.call(*args, &block)
-    end
-  end
-
-  class AssertionFailed < StandardError
-  end
+  # Public: Raised when a test failed.
+  class AssertionFailed < StandardError; end
 
   module_function
 
@@ -74,7 +9,7 @@ module Properties
   # block. A test has failed when the block returns a falsy value (false or 
   # nil).
   #
-  # types - Objects responding to #to_gen or Enumerators.
+  # types - Enumerators or objects responding to #random.
   # block - A block that describes the property.
   #
   # Examples
@@ -88,15 +23,17 @@ module Properties
   #   end
   #
   # Returns true.
-  # Raises ArgumentError when invalid arguments are received.
+  # Raises ArgumentError when no generators were supplied.
+  # Raises ArgumentError when a generator generates too few values.
+  # Raises ArgumentError when no block was supplied.
   # Raises Properties::AssertionFailed when a test failed.
   def property(*types, &block)
     offenders = types.reject do |type|
-      type.respond_to?(:to_gen) || type.is_a?(Enumerator)
+      type.respond_to?(:random) || type.is_a?(Enumerator)
     end
 
     unless offenders.empty?
-      raise ArgumentError, "no #to_gen implemented for #{offenders.join ", "}"
+      raise ArgumentError, "no #random implemented for #{offenders.join ", "}"
     end
 
     unless block_given?
@@ -108,7 +45,7 @@ module Properties
     end
 
     generators = types.map do |type|
-      type.is_a?(Enumerator) ? type : type.to_gen
+      type.is_a?(Enumerator) ? type : self.generator(type)
     end
 
     1.upto(100) do |i|
@@ -129,7 +66,59 @@ module Properties
     end
 
     return true
-  rescue StopIteration
-    raise "generator exhausted"
+  rescue StopIteration => e
+    offender = generators.find { |gen| gen.peek && false rescue true }
+
+    raise ArgumentError, "#{offender} generates too few values"
+  end
+
+  # Public: Creates a generator from a block.
+  #
+  # args - Any arguments that should be passed to the block.
+  #
+  # Examples
+  #
+  #   float_generator = Properties.generator do
+  #     rand
+  #   end
+  #
+  #   number_generator = Properties.generator(1, 100) do |min, max
+  #     rand(min..max)
+  #   end
+  #
+  #   # Assuming Symbol.random is implemented
+  #   symbol_generator = Properties.generator &Symbol.method(:random)
+  #
+  # Returns an Enumerator.
+  # Raises ArgumentError if no block was passed.
+  def generator(*args, &block)
+    unless block_given?
+      raise ArgumentError, "no block given"
+    end
+
+    Enumerator.new(Float::INFINITY) do |yielder|
+      loop { yielder << yield(*args) }
+    end
+  end
+
+  # Public: Creates a generator from an object. The object should respond to
+  # #random.
+  #
+  # object - An object responding to #random.
+  # args   - Any arguments that should be passed to object#random.
+  #
+  # Examples
+  #
+  #   # Assuming Integer.random is implemented and takes two arguments.
+  #   integer_generator = generator_for(Integer, 1, 10)
+  #
+  # Returns an Enumerator.
+  # Raises ArgumentError if `object` does not respond to #raw.
+  def generator_for(object, *args, &block)
+    unless object.respond_to?(:random)
+      raise ArgumentError, "no #random implemented for #{object}"
+    end
+
+    generator(*args, &object.method(:random))
   end
 end
