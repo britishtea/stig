@@ -44,12 +44,11 @@ module Properties
       raise ArgumentError, "no generators given, consider a unit test"
     end
 
-    generators = types.map do |type|
-      type.is_a?(Enumerator) ? type : self.generator(type)
-    end
-
     1.upto(100) do |i|
-      input  = generators.map(&:next)
+      input = types.map do |type|
+        type.is_a?(Enumerator) ? type.next : type.random
+      end
+
       result = yield(*input)
 
       unless result
@@ -66,8 +65,10 @@ module Properties
     end
 
     return true
-  rescue StopIteration => e
-    offender = generators.find { |gen| gen.peek && false rescue true }
+  rescue StopIteration
+    offender = types
+      .select { |type| type.respond_to?(:peek) }
+      .find { |gen| gen.peek && false rescue true }
 
     raise ArgumentError, "#{offender} generates too few values"
   end
