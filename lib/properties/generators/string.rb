@@ -8,14 +8,11 @@ module Properties
       #
       # Returns a String.
       def self.random(set = Character::ASCII, size = 25)
-        if set.empty?
-          raise ArgumentError, "character set is empty"
-        end
-        
         result = ""
         
         rand(size).times do
-          result << set.sample
+          char = set.sample || raise(ArgumentError, "character set is empty")
+          result << char
         end
 
         result

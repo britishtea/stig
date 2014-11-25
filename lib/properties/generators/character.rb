@@ -15,11 +15,7 @@ module Properties
       # Returns a 1 character String.
       # Raises ArgumentError when `set` is empty.
       def self.random(set = ASCII)
-        if set.empty?
-          raise ArgumentError, "character set is empty"
-        end
-
-        set = set.sample
+        set = set.sample || raise(ArgumentError, "character set is empty")
       end
     end
   end
