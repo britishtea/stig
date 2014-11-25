@@ -1,3 +1,7 @@
+require "stig/refinements"
+
+using Stig::Refinements
+
 module Stig
   # Public: Raised when a test failed.
   class AssertionFailed < StandardError; end

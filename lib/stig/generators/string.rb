@@ -1,3 +1,5 @@
+require "stig/generators/character"
+
 module Stig
   module Generators
     module String
