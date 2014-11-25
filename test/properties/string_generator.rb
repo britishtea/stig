@@ -11,7 +11,7 @@ test "defaults to all ASCII characters with maximum length 25" do |namespace|
   generator = generator(&namespace::String.method(:random))
 
   property(generator) do |string|
-    assert string.chars.map(&:ord).all? { |char| set.include? char }
+    assert string.chars.all? { |char| set.include? char }
 
     true
   end
@@ -37,6 +37,10 @@ test "takes character sets" do |namespace|
 
     true
   end
+end
+
+test "doesn't take an empty character set" do |namespace|
+  assert_raise(ArgumentError) { namespace::String.random([]) }
 end
 
 test "takes a maximum length" do |namespace|

@@ -38,25 +38,6 @@ test "takes a character set" do |namespace|
   end
 end
 
-test "calls #chr on objects in the character set" do |namespace|
-  custom = Object.new
-  custom.define_singleton_method(:chr) { "a" }
-
-  # 97 is the ASCII number for "a"
-  set       = ["a", 97, custom]
-  generator = generator(set, &namespace::Character.method(:random))
-
-  property(generator) do |character|
-    assert_equal character, "a"
-
-    true
-  end
-end
-
-test "doesn't take objects not responding to #chr" do |namespace|
-  assert_raise(ArgumentError) { namespace::Character.random([Object.new]) }
-end
-
 test "doesn't take an empty character set" do |namespace|
   assert_raise(ArgumentError) { namespace::Character.random([]) }
 end
