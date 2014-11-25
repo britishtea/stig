@@ -1,10 +1,10 @@
 require_relative "../test_helper"
-require "properties"
-require "properties/generators/string"
+require "stig"
+require "stig/generators/string"
 
-include Properties
+include Stig
 
-setup { Properties::Generators }
+setup { Stig::Generators }
 
 test "defaults to all ASCII characters with maximum length 25" do |namespace|
   set       = namespace::Character::ASCII

@@ -1,4 +1,4 @@
-module Properties
+module Stig
   # Public: Raised when a test failed.
   class AssertionFailed < StandardError; end
 
@@ -23,10 +23,11 @@ module Properties
   #   end
   #
   # Returns true.
+  # Raises ArgumentError when an invalid generator was supplied.
   # Raises ArgumentError when no generators were supplied.
   # Raises ArgumentError when a generator generates too few values.
   # Raises ArgumentError when no block was supplied.
-  # Raises Properties::AssertionFailed when a test failed.
+  # Raises Stig::AssertionFailed when a test failed.
   def property(*types, &block)
     offenders = types.reject do |type|
       type.respond_to?(:random) || type.is_a?(Enumerator)
@@ -79,16 +80,16 @@ module Properties
   #
   # Examples
   #
-  #   float_generator = Properties.generator do
+  #   float_generator = Stig.generator do
   #     rand
   #   end
   #
-  #   number_generator = Properties.generator(1, 100) do |min, max
+  #   number_generator = Stig.generator(1, 100) do |min, max
   #     rand(min..max)
   #   end
   #
   #   # Assuming Symbol.random is implemented
-  #   symbol_generator = Properties.generator &Symbol.method(:random)
+  #   symbol_generator = Stig.generator &Symbol.method(:random)
   #
   # Returns an Enumerator.
   # Raises ArgumentError if no block was passed.
@@ -115,11 +116,13 @@ module Properties
   #
   # Returns an Enumerator.
   # Raises ArgumentError if `object` does not respond to #raw.
-  def generator_for(object, *args, &block)
+  def generator_for(object, *args)
     unless object.respond_to?(:random)
       raise ArgumentError, "no #random implemented for #{object}"
     end
 
-    generator(*args, &object.method(:random))
+    Enumerator.new(Float::INFINITY) do |yielder|
+      loop { yielder << object.random(*args) }
+    end
   end
 end

@@ -1,9 +1,9 @@
 require_relative "../test_helper"
-require "properties"
+require "stig"
 
 TEST_GENERATOR = [1].cycle
 
-setup { Properties }
+setup { Stig }
 
 prepare { $test = 0 }
 
@@ -39,7 +39,7 @@ test "no property" do |namespace|
 end
 
 test "failing test" do |namespace|
-  assert_raise(Properties::AssertionFailed) do
+  assert_raise(Stig::AssertionFailed) do
     namespace.property(TEST_GENERATOR) { |i| false }
   end
 end

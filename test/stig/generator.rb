@@ -1,7 +1,7 @@
 require_relative "../test_helper"
-require "properties"
+require "stig"
 
-setup { Properties }
+setup { Stig }
 
 prepare { $test = nil }
 

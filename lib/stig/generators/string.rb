@@ -1,13 +1,17 @@
-module Properties
+module Stig
   module Generators
     module String
-      # Public: Generates a random String.
+      extend self
+
+      # Public: Generates a random String. Characters are picked from a 
+      # character set (`set`). Size is variable, use a Range with equal start
+      # and end for a fixed size.
       #
       # set  - An Array of one character Strings (default: ASCII).
       # size - A maximum length Integer or Range (default: 25).
       #
       # Returns a String.
-      def self.random(set = Character::ASCII, size = 25)
+      def random(set = Character::ASCII, size = 25)
         result = ""
         
         rand(size).times do

@@ -1,4 +1,4 @@
-module Properties
+module Stig
   module Generators
     module Character
       ASCII     = 0.upto(127).map(&:chr)

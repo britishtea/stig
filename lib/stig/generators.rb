@@ -1,0 +1,5 @@
+require "stig/generators/array"
+require "stig/generators/character"
+require "stig/generators/float"
+require "stig/generators/integer"
+require "stig/generators/string"

@@ -1,10 +1,10 @@
 require_relative "../test_helper"
-require "properties"
-require "properties/generators/integer"
+require "stig"
+require "stig/generators/integer"
 
-include Properties
+include Stig
 
-setup { Properties::Generators }
+setup { Stig::Generators }
 
 test "takes a maximum value" do |namespace|
   generator = generator(10, &namespace::Integer.method(:random))
