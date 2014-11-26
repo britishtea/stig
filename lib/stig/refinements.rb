@@ -1,6 +1,7 @@
 require "stig/generators/float"
 require "stig/generators/integer"
 require "stig/generators/string"
+require "stig/generators/symbol"
 
 module Stig
   # Public: Refinements for the core classes Array, Float, Integer and String.
@@ -22,6 +23,10 @@ module Stig
 
     refine String.singleton_class do
       include Generators::String, Fix
+    end
+
+    refine Symbol.singleton_class do
+      include Generators::Symbol, Fix
     end
   end
 end
