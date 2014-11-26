@@ -11,9 +11,7 @@ module Stig
       #
       # Returns a Time.
       def random(interval = DEFAULT_INTERVAL)
-        unix_time = rand(interval.min.to_i..interval.max.to_i)
-        
-        ::Time.at(unix_time)
+        rand(interval)
       end
     end
   end
