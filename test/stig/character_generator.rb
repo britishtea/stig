@@ -4,32 +4,30 @@ require "stig/generators/string"
 
 include Stig
 
-setup { Stig::Generators }
+setup { Stig::Generators::Character }
 
-test "defaults to all ASCII characters" do |namespace|
-  generator = generator(&namespace::Character.method(:random))
-
-  property(generator) do |character|
+test "defaults to all ASCII characters" do |mod|
+  property(mod) do |character|
     assert_equal character.class, String
 
     true
   end
 
-  property(generator) do |character|
+  property(mod) do |character|
     assert_equal character.size, 1
 
     true
   end
 
-  property(generator) do |character|
+  property(mod) do |character|
     assert 0.upto(127).map(&:chr).include?(character)
 
     true
   end
 end
 
-test "takes a character set" do |namespace|
-  generator = generator(["a"], &namespace::Character.method(:random))
+test "takes a character set" do |mod|
+  generator = generator_for(mod, ["a"])
 
   property(generator) do |character|
     assert_equal character, "a"
@@ -38,6 +36,6 @@ test "takes a character set" do |namespace|
   end
 end
 
-test "doesn't take an empty character set" do |namespace|
-  assert_raise(ArgumentError) { namespace::Character.random([]) }
+test "doesn't take an empty character set" do |mod|
+  assert_raise(ArgumentError) { mod.random([]) }
 end

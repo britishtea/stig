@@ -7,16 +7,15 @@ include Stig
 setup { Stig::Generators::Time }
 
 test "defaults to dates between the UNIX epoch and \"now\"" do |mod|
-  generator = generator_for(mod)
-  range     = Time.at(0)..Time.now
+  range = Time.at(0)..Time.now
 
-  property(generator) do |time|
+  property(mod) do |time|
     assert_equal time.class, Time
 
     true
   end
 
-  property(generator) do |time|
+  property(mod) do |time|
     assert range.cover?(time)
 
     true

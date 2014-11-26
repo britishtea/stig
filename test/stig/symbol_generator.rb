@@ -7,16 +7,15 @@ include Stig
 setup { Stig::Generators::Symbol }
 
 test "defaults to all ASCII characters with maximum length 25" do |mod|
-  set       = Stig::Generators::Character::ASCII
-  generator = generator_for(mod)
+  set = Stig::Generators::Character::ASCII
 
-  property(generator) do |symbol|
+  property(mod) do |symbol|
     assert symbol.to_s.chars.all? { |char| set.include? char }
 
     true
   end
 
-  property(generator) do |symbol|
+  property(mod) do |symbol|
     assert symbol.size.between?(0, 25)
 
     true

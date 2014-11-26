@@ -4,10 +4,10 @@ require "stig/generators/integer"
 
 include Stig
 
-setup { Stig::Generators }
+setup { Stig::Generators::Integer }
 
-test "takes a maximum value" do |namespace|
-  generator = generator(10, &namespace::Integer.method(:random))
+test "takes a maximum value" do |mod|
+  generator = generator_for(mod, 10)
 
   property(generator) do |integer|
     assert integer.between?(0, 10)
@@ -16,8 +16,8 @@ test "takes a maximum value" do |namespace|
   end
 end
 
-test "takes a range" do |namespace|
-  generator = generator(5..10, &namespace::Integer.method(:random))
+test "takes a range" do |mod|
+  generator = generator_for(mod, 5..10)
 
   property(generator) do |integer|
     assert integer.between?(5, 10)
@@ -26,10 +26,8 @@ test "takes a range" do |namespace|
   end
 end
 
-test "defaults to Integers between 0 and 100" do |namespace|
-  generator = generator(&namespace::Integer.method(:random))
-
-  property(generator) do |integer|
+test "defaults to Integers between 0 and 100" do |mod|
+  property(mod) do |integer|
     assert integer.between?(0, 100)
 
     true

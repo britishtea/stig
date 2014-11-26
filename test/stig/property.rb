@@ -11,24 +11,24 @@ prepare do
   $test    = 0
 end
 
-test "no generators" do |namespace|
+test "no generators" do |stig|
   assert_raise(ArgumentError) do
-    namespace.property { true }
+    stig.property { true }
   end
 end
 
-test "invalid generators" do |namespace|
+test "invalid generators" do |stig|
   assert_raise(ArgumentError) do
-    namespace.property("invalid", TEST_GENERATOR) { true }
+    stig.property("invalid", TEST_GENERATOR) { true }
   end
 
   assert_raise(ArgumentError) do
-    namespace.property([].each) { true }
+    stig.property([].each) { true }
   end
 end
 
-test "valid generators" do |namespace|
-  namespace.property(TEST_GENERATOR, 100.times) do |i,j|
+test "valid generators" do |stig|
+  stig.property(TEST_GENERATOR, 100.times) do |i,j|
     assert_equal i, 1
     assert_equal j, $test
 
@@ -36,20 +36,20 @@ test "valid generators" do |namespace|
   end
 end
 
-test "no property" do |namespace|
+test "no property" do |stig|
   assert_raise(ArgumentError) do
-    namespace.property(TEST_GENERATOR)
+    stig.property(TEST_GENERATOR)
   end
 end
 
-test "failing test" do |namespace|
+test "failing test" do |stig|
   assert_raise(Stig::AssertionFailed) do
-    namespace.property(TEST_GENERATOR) { |i| false }
+    stig.property(TEST_GENERATOR) { |i| false }
   end
 end
 
-test "passing tests" do |namespace|
-  assert namespace.property(TEST_GENERATOR) { |i| true }
+test "passing tests" do |stig|
+  assert stig.property(TEST_GENERATOR) { |i| true }
 end
 
 test "default number of runs" do |stig|
