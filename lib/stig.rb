@@ -3,6 +3,9 @@ require "stig/refinements"
 using Stig::Refinements
 
 module Stig
+  # Public: Number of tests that should be run.
+  NUMBER_OF_RUNS = (ENV["STIG_NUMBER_OF_RUNS"] || 100).to_i
+  
   # Public: Raised when a test failed.
   class AssertionFailed < StandardError; end
 
@@ -49,7 +52,7 @@ module Stig
       raise ArgumentError, "no generators given, consider a unit test"
     end
 
-    1.upto(100) do |i|
+    1.upto(NUMBER_OF_RUNS) do |i|
       input = types.map do |type|
         type.is_a?(Enumerator) ? type.next : type.random
       end
