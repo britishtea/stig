@@ -1,3 +1,4 @@
+require "stig/generators/date"
 require "stig/generators/float"
 require "stig/generators/integer"
 require "stig/generators/string"
@@ -36,6 +37,18 @@ module Stig
     module Fix
       def respond_to?(method, *args)
         method == :random ? true : super
+      end
+    end
+
+    refine Date.singleton_class do
+      include Fix
+
+      def random(*args, &block)
+        Generators::Date.random(*args, &block)
+      end
+
+      def send(method, *args, &block)
+        method == :random ? random(*args, &block) : super
       end
     end
 
