@@ -1,8 +1,8 @@
 require_relative "../test_helper"
 require "stig"
 
-TEST_GENERATOR = [1].cycle
-VERBOSITY      = $VERBOSE
+GENERATOR = proc { 1 }
+VERBOSITY = $VERBOSE
 
 setup { Stig }
 
@@ -19,7 +19,7 @@ end
 
 test "invalid generators" do |stig|
   assert_raise(ArgumentError) do
-    stig.property("invalid", TEST_GENERATOR) { true }
+    stig.property("invalid", GENERATOR) { true }
   end
 
   assert_raise(ArgumentError) do
@@ -27,55 +27,75 @@ test "invalid generators" do |stig|
   end
 end
 
-test "valid generators" do |stig|
-  stig.property(TEST_GENERATOR, 100.times) do |i,j|
-    assert_equal i, 1
-    assert_equal j, $test
+test "an object implementing #call as generator" do |stig|
+  generator = proc { 1 }
 
-    $test += 1
+  stig.property(generator) do |i|
+    assert_equal i, 1
+
+    true
+  end
+end
+
+test "an object implemeting #random as generator" do |stig|
+  generator = Object.new
+  generator.define_singleton_method(:random) { 1 }
+
+  stig.property(generator) do |i|
+    assert_equal i, 1
+
+    true
+  end
+end
+
+test "multiple generators" do |stig|
+  stig.property(GENERATOR, GENERATOR, GENERATOR) do |i,j,k|
+    assert_equal i, 1
+    assert_equal j, 1
+    assert_equal k, 1
+
+    true
   end
 end
 
 test "no property" do |stig|
-  assert_raise(ArgumentError) do
-    stig.property(TEST_GENERATOR)
-  end
+  assert_raise(ArgumentError) { stig.property(GENERATOR) }
 end
 
-test "failing test" do |stig|
+test "raises when a test fails" do |stig|
   assert_raise(Stig::AssertionFailed) do
-    stig.property(TEST_GENERATOR) { |i| false }
+    stig.property(GENERATOR) { false }
   end
 end
 
-test "passing tests" do |stig|
-  assert stig.property(TEST_GENERATOR) { |i| true }
+test "return true when all tests pass" do |stig|
+  assert stig.property(GENERATOR) { |i| true }
 end
 
 test "default number of runs" do |stig|
-  stig.property(TEST_GENERATOR) { $test += 1 }
+  stig.property(GENERATOR) { $test += 1 }
 
   assert_equal $test, 100
 end
 
 test "configure number of runs with constant" do |stig|
   $VERBOSE = nil
-  stig::NUMBER_OF_RUNS = 101
+  stig::NUMBER_OF_RUNS = 2
   $VERBOSE = VERBOSITY
 
-  stig.property(TEST_GENERATOR) { $test += 1 }
+  stig.property(GENERATOR) { $test += 1 }
 
-  assert_equal $test, 101 
+  assert_equal $test, 2 
 end
 
 test "configure number of runs with environment variable" do |stig|
-  ENV["STIG_NUMBER_OF_RUNS"] = "101"
+  ENV["STIG_NUMBER_OF_RUNS"] = "2"
   
   $VERBOSE = nil
   load "stig.rb"
   $VERBOSE = VERBOSITY
 
-  stig.property(TEST_GENERATOR) { $test += 1 }
+  stig.property(GENERATOR) { $test += 1 }
 
-  assert_equal $test, 101
+  assert_equal $test, 2
 end

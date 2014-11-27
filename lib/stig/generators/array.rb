@@ -5,26 +5,23 @@ module Stig
       # generator. Size is variable, use a Range with equal start and end for a
       # fixed size.
       #
-      # generator - An enumerator or an object responding to #random.
+      # generator - An object implementing #call or #random.
       # size      - A maximum size Integer or Range (default: 1..10).
       #
       # Returns an Array.
       # Raises ArgumentError when an invalid generator was supplied.
       def self.random(generator, size = 1..10)
-        unless generator.is_a?(Enumerator) || generator.respond_to?(:random)
-          raise ArgumentError, "no #random implemented for #{generator}"
+        unless generator.respond_to?(:call) || generator.respond_to?(:random)
+          msg = "no #call or #random implemented for #{generator}"
+          raise ArgumentError, msg
         end
+
+        method = generator.respond_to?(:call) ? :call : :random
 
         array = []
 
         rand(size).times do
-          if generator.is_a?(Enumerator)
-            element = generator.next
-          else
-            element = generator.random
-          end
-
-          array << element
+          array << generator.send(method)
         end
 
         array

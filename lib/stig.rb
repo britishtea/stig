@@ -16,7 +16,7 @@ module Stig
   # block. A test has failed when the block returns a falsy value (false or 
   # nil).
   #
-  # types - Enumerators or objects responding to #random.
+  # types - An object implementing #call or #random.
   # block - A block that describes the property.
   #
   # Examples
@@ -25,8 +25,8 @@ module Stig
   #     assert (a + b).start_with?(a)
   #   end
   #   
-  #   property([1,2,3].each, [1,2,3].each) do |a,b|
-  #     assert (a + b).is_a?(Integer)
+  #   property(-> { rand(10) }) do |a|
+  #     assert a.between?(0, 10)
   #   end
   #
   # Returns true.
@@ -37,11 +37,12 @@ module Stig
   # Raises Stig::AssertionFailed when a test failed.
   def property(*types, &block)
     offenders = types.reject do |type|
-      type.respond_to?(:random) || type.is_a?(Enumerator)
+      type.respond_to?(:call) || type.respond_to?(:random)
     end
 
     unless offenders.empty?
-      raise ArgumentError, "no #random implemented for #{offenders.join ", "}"
+      msg = "no #call or #random implemented for #{offenders.join ", "}"
+      raise ArgumentError, msg
     end
 
     unless block_given?
@@ -52,10 +53,14 @@ module Stig
       raise ArgumentError, "no generators given, consider a unit test"
     end
 
+    methods = types.map do |type|
+      type.respond_to?(:call) ? :call : :random
+    end
+
+    types_and_method = types.zip(methods)
+
     1.upto(NUMBER_OF_RUNS) do |i|
-      input = types.map do |type|
-        type.is_a?(Enumerator) ? type.next : type.random
-      end
+      input = types_and_method.map { |type, method| type.send(method) }
 
       result = yield(*input)
 
@@ -83,7 +88,8 @@ module Stig
 
   # Public: Creates a generator from a block.
   #
-  # args - Any arguments that should be passed to the block.
+  # args  - Any arguments that should be passed to the block.
+  # block - A block returning a random value.
   #
   # Examples
   #
@@ -95,25 +101,20 @@ module Stig
   #     rand(min..max)
   #   end
   #
-  #   # Assuming Symbol.random is implemented
-  #   symbol_generator = Stig.generator &Symbol.method(:random)
-  #
-  # Returns an Enumerator.
+  # Returns a Proc.
   # Raises ArgumentError if no block was passed.
   def generator(*args, &block)
     unless block_given?
       raise ArgumentError, "no block given"
     end
 
-    Enumerator.new(Float::INFINITY) do |yielder|
-      loop { yielder << yield(*args) }
-    end
+    args.empty? ? block : proc { yield(*args) }
   end
 
   # Public: Creates a generator from an object. The object should respond to
   # #random.
   #
-  # object - An object responding to #random.
+  # object - An object implementing #random.
   # args   - Any arguments that should be passed to object#random.
   #
   # Examples
@@ -121,15 +122,13 @@ module Stig
   #   # Assuming Integer.random is implemented and takes two arguments.
   #   integer_generator = generator_for(Integer, 1, 10)
   #
-  # Returns an Enumerator.
-  # Raises ArgumentError if `object` does not respond to #raw.
+  # Returns a Proc.
+  # Raises ArgumentError if `object` does not respond to #random.
   def generator_for(object, *args)
     unless object.respond_to?(:random)
       raise ArgumentError, "no #random implemented for #{object}"
     end
 
-    Enumerator.new(Float::INFINITY) do |yielder|
-      loop { yielder << object.random(*args) }
-    end
+    generator(*args, &object.method(:random))
   end
 end
