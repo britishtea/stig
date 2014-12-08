@@ -22,16 +22,16 @@ test "doesn't parse random input" do
 end
 ```
 
-**Note**: *If your test framework returns a falsy value for it's assertion
-methods, make sure the block passed to `#property` returns a truthy value.*
+`Stig.property` takes one or more generators and a predicate block. A generator
+is an object implementing `#call` or `#random`. A predicate block is a block
+that returns `true` for passed tests and `false` for failed test.
 
-`String` and `Integer` are used as *generators* here. A generator is an object
-implementing `#call` or `#random`. Stig uses refinements to have core classes
-respond to `#random`.
+**Note**: In the above example `String` is used as generator. Stig doesn't
+monkey-patch any classes. Refinements are used instead.
 
-Stig ships with a few built in generators, such as Date, Integer and String. 
-They can be found under the `Stig::Generators` namespace. It's easy to write
-your own generators using `Stig.generator` and `Stig.generator_for`.
+Stig ships with a few built in generators, such as `Date`, `Integer` and 
+`String`. They can be found under the `Stig::Generators` namespace. It's easy to
+write your own generators using `Stig.generator` and `Stig.generator_for`.
 
 An example of creating a custom generator using `Stig.generator`.
 
@@ -61,10 +61,8 @@ person_generator.call
 # => #<struct Person name="-\x069|\x0F\x03Llq", age=6>
 ```
 
-`Stig` can be included at the top level (`include Stig`) so `#property`, 
-`#generator` and `#generator_for` can be used directly. To configure the number 
-of tests stig should run set the environment variable `STIG_NUMBER_OF_RUNS` to 
-the desired number of test runs.
+To configure the number of tests stig should run set the environment variable 
+`STIG_NUMBER_OF_RUNS` to the desired number of test runs.
 
 [cutest]: https://github.com/djanowski/cutest
 
