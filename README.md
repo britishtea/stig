@@ -26,8 +26,10 @@ end
 is an object implementing `#call` or `#random`. A predicate block is a block
 that returns `true` for passed tests and `false` for failed test.
 
-**Note**: In the above example `String` is used as generator. Stig doesn't
-monkey-patch any classes. Refinements are used instead.
+**Note**: *In the above example `String` is used as generator. Stig doesn't
+monkey-patch any classes. Refinements are used instead.*
+
+### Generators
 
 Stig ships with a few built in generators, such as `Date`, `Integer` and 
 `String`. They can be found under the `Stig::Generators` namespace. It's easy to

@@ -11,10 +11,8 @@ test "takes a generator" do |mod|
   values    = generator { 1 }
   generator = generator_for(mod, values)
 
-  property(generator, keys) do |hash, key|
-    assert_equal hash[key], 1
-
-    true
+  assert_property(generator, keys) do |hash, key|
+    hash[key] ==1
   end
 end
 
@@ -23,10 +21,8 @@ test "takes a generator and a list of keys" do |mod|
   values    = generator { 1 }
   generator = generator_for(mod, values, *keys)
 
-  property(generator) do |hash|
-    assert_equal hash, :a => 1, :b => 1, :c => 1
-
-    true
+  assert_property(generator) do |hash|
+    hash == { :a => 1, :b => 1, :c => 1 }
   end
 end
 

@@ -9,16 +9,12 @@ setup { Stig::Generators::Time }
 test "defaults to dates between the UNIX epoch and \"now\"" do |mod|
   range = Time.at(0)..Time.now
 
-  property(mod) do |time|
-    assert_equal time.class, Time
-
-    true
+  assert_property(mod) do |time|
+    time.class == Time
   end
 
-  property(mod) do |time|
-    assert range.cover?(time)
-
-    true
+  assert_property(mod) do |time|
+    range.cover?(time)
   end
 end
 
@@ -26,9 +22,7 @@ test "takes a Range" do |mod|
   range     = Time.at(200)..Time.at(300)
   generator = generator_for(mod, range)
 
-  property(generator) do |time|
-    assert range.cover?(time)
-
-    true
+  assert_property(generator) do |time|
+    range.cover?(time)
   end
 end
