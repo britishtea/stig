@@ -78,12 +78,6 @@ module Stig
     end
 
     return true
-  rescue StopIteration
-    offender = types
-      .select { |type| type.respond_to?(:peek) }
-      .find { |gen| gen.peek && false rescue true }
-
-    raise ArgumentError, "#{offender} generates too few values"
   end
 
   # Public: Creates a generator from a block.
