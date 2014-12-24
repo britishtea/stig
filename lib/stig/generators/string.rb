@@ -14,12 +14,12 @@ module Stig
       #
       # Returns a String.
       def random(set = Character::ASCII, size = 25)
-        result = ""
-        
-        rand(size).times do
-          char = set.sample || raise(ArgumentError, "character set is empty")
-          result << char
+        if set.empty?
+          raise(ArgumentError, "character set is empty")
         end
+
+        result = ""
+        rand(size).times { result << set.sample }
 
         result
       end
