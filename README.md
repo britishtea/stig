@@ -72,7 +72,7 @@ To configure the number of tests stig should run set the environment variable
 
 `gem install stig`
 
-Stig requires Ruby 2.0.0 or higher.
+Stig requires Ruby 1.9.3 or higher.
 
 ## License
 

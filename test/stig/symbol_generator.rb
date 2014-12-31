@@ -26,7 +26,7 @@ test "takes character sets" do |mod|
   end
 
   assert_property(generator) do |symbol|
-    [["a"], []].include?(symbol.to_s.chars.uniq)
+    [["a"], []].include?(symbol.to_s.chars.to_a.uniq)
   end
 end
 
