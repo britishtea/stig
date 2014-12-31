@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
 
   s.files                 = `git ls-files`.split("\n")
   s.extra_rdoc_files      = ["README.md"]
-  s.required_ruby_version = '>= 2.0'
+  s.required_ruby_version = '>= 1.9.3'
   
   s.add_development_dependency "cutest", "~> 1.2"
 end
