@@ -27,7 +27,7 @@ is an object implementing `#call` or `#random`. A predicate block is a block
 that returns `true` for passed tests and `false` for failed test.
 
 **Note**: *In the above example `String` is used as generator. Stig doesn't
-monkey-patch any classes. Refinements are used instead.*
+monkey-patch any core classes.*
 
 ### Generators
 

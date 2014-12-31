@@ -99,3 +99,9 @@ test "configure number of runs with environment variable" do |stig|
 
   assert_equal $test, 2
 end
+
+test "works with core classes" do |stig|
+  [Date, Float, Integer, String, Symbol, Time].each do |generator|
+    stig.property(generator) { true }
+  end
+end

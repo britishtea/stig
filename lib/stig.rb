@@ -1,10 +1,18 @@
-require "stig/refinements"
-
-using Stig::Refinements
+require "stig/generators"
 
 module Stig
   # Public: Number of tests that should be run.
   NUMBER_OF_RUNS = (ENV["STIG_NUMBER_OF_RUNS"] || 100).to_i
+
+  # Public: Links core classes to generator modules.
+  CONVERSIONS = {
+    Date    => Generators::Date,
+    Float   => Generators::Float,
+    Integer => Generators::Integer,
+    String  => Generators::String,
+    Symbol  => Generators::Symbol,
+    Time    => Generators::Time,
+  }
   
   # Public: Raised when a test failed.
   class AssertionFailed < StandardError; end
@@ -12,9 +20,10 @@ module Stig
   module_function
 
   # Public: Tests a property with randomly generated input. The input comes from
-  # Generators, which are passed as arguments. The property is described in the 
-  # block. A test has failed when the block returns a falsy value (false or 
-  # nil).
+  # Generators, which are passed as arguments. Core classes can also be used as
+  # Generators, they are lookup in the `CONVERSIONS` `Hash`. The property is 
+  # described in the block. A test has failed when the block returns a falsy 
+  # value (false or nil).
   #
   # types - An object implementing #call or #random.
   # block - A block that describes the property.
@@ -36,6 +45,8 @@ module Stig
   # Raises ArgumentError when no block was supplied.
   # Raises Stig::AssertionFailed when a test failed.
   def property(*types, &block)
+    types = types.map { |type| CONVERSIONS[type] || type }
+
     offenders = types.reject do |type|
       type.respond_to?(:call) || type.respond_to?(:random)
     end
